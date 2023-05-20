@@ -1,40 +1,54 @@
-import { useEffect, useState } from 'react';
-import Gallery from './components/Gallery';
-import SearchBar from './components/SearchBar';
-import './App.css';
+import { useState, useRef } from "react";
+import Gallery from "./components/Gallery";
+import SearchBar from "./components/SearchBar";
+import { DataContext } from "./components/contexts/DataContext";
+import { SearchContext } from "./components/contexts/SearchContext";
+import "./App.css";
 
 function App() {
-  let [search, setSearch] = useState('Jimmy Butler');
-  let [message, setMessage] = useState('Search for Musix');
+  let [message, setMessage] = useState("Search for Musix");
   let [data, setData] = useState([]);
+  let searchInput = useRef('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      document.title = `${search} Music`;
-      const response = await fetch(`https://itunes.apple.com/search?term=${search}`);
-      const resData = await response.json();
-      console.log(resData);
-      if(resData.results.length) {
-        setData(resData.results);
-      } else {
-        setMessage(`We could find nothing for "${search}"`)
-      }
-    }
-    if (search){
-    fetchData();
-    }
-  }, [search])
-
-  const handleSearch = (e, term) => {
+  const handleSearch = (e, search) => {
     e.preventDefault();
-    setSearch(term);
-  }
+    const fetchData = async () => {
+      try {
+        document.title = `${search} Music`;
+        const response = await fetch(
+          `https://itunes.apple.com/search?term=${search}`
+        );
+        const resData = await response.json();
+        console.log(resData);
+        if (resData.results.length) {
+          setData(resData.results);
+          setMessage("");
+        } else {
+          setMessage(`We could find nothing for "${search}"`);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    if (search) {
+      fetchData();
+    }
+  };
 
   return (
     <div className="App">
-      <SearchBar handleSearch={handleSearch}/>
-      { message }
-      <Gallery data={data}/>
+      <SearchContext.Provider
+        value={{
+          term: searchInput,
+          handleSearch: handleSearch,
+        }}
+      >
+        <SearchBar />
+      </SearchContext.Provider>
+      {message}
+      <DataContext.Provider value={data}>
+        <Gallery />
+      </DataContext.Provider>
     </div>
   );
 }
