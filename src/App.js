@@ -1,6 +1,9 @@
 import { useState, useRef } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Gallery from "./components/Gallery";
 import SearchBar from "./components/SearchBar";
+import AlbumView from "./components/ArtistView";
+import ArtistView from "./components/AlbumView";
 import { DataContext } from "./components/contexts/DataContext";
 import { SearchContext } from "./components/contexts/SearchContext";
 import "./App.css";
@@ -8,7 +11,7 @@ import "./App.css";
 function App() {
   let [message, setMessage] = useState("Search for Musix");
   let [data, setData] = useState([]);
-  let searchInput = useRef('');
+  let searchInput = useRef("");
 
   const handleSearch = (e, search) => {
     e.preventDefault();
@@ -37,18 +40,34 @@ function App() {
 
   return (
     <div className="App">
-      <SearchContext.Provider
-        value={{
-          term: searchInput,
-          handleSearch: handleSearch,
-        }}
-      >
-        <SearchBar />
-      </SearchContext.Provider>
       {message}
-      <DataContext.Provider value={data}>
-        <Gallery />
-      </DataContext.Provider>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <SearchContext.Provider
+                  value={{
+                    term: searchInput,
+                    handleSearch,
+                  }}
+                >
+                  <SearchBar />
+                </SearchContext.Provider>
+                {message}
+                <DataContext.Provider value={data}>
+                  <Gallery />
+                </DataContext.Provider>
+              </>
+            }
+          />
+          <Route path='/album/:id' element={<AlbumView/>}/>
+          <Route path='/artist/:id' element={<ArtistView/>}/>
+        </Routes>
+      </Router>
+      <AlbumView />
+      <ArtistView />
     </div>
   );
 }
