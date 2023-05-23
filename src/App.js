@@ -66,8 +66,6 @@ function App() {
           <Route path='/artist/:id' element={<ArtistView/>}/>
         </Routes>
       </Router>
-      <AlbumView />
-      <ArtistView />
     </div>
   );
 }
